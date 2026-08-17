@@ -83,21 +83,8 @@ ESP32 nie otrzymuje 5 V bezpośrednio na GPIO0.
 
 ### Schemat sygnałów
 
-```text
-                    ESP32-C3 SUPER MINI
-                ┌────────────────────────┐
-                │                        │
-Ładowarka ─────►│ GPIO0                  │
-przez tranzystor│                        │
-                │ GPIO1 ───────────────► DATA ARGB
-                │                        │
-DFPlayer TX ───►│ GPIO20 / RX            │
-                │                        │
-DFPlayer RX ◄───│ GPIO21 / TX            │
-                │                        │
-GND ────────────│ GND                    │
-                └────────────────────────┘
-```
+<img width="943" height="536" alt="Esp 32" src="https://github.com/user-attachments/assets/bdcb397c-abca-4d74-ab44-fac75988aeaf" />
+
 
 Zalecany jest rezystor około **1 kΩ** pomiędzy GPIO21 ESP32 a wejściem RX DFPlayera.
 
