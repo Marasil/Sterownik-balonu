@@ -9,7 +9,7 @@ Układ automatycznie wykrywa start i lądowanie balonu, wykonuje zaprogramowane 
 
 Konfiguracja odbywa się przez lokalny panel WWW dostępny przez Wi-Fi.
 
-## Funkcje
+### Funkcje
 
 * automatyczne wykrywanie startu i lądowania,
 * osobne sekwencje efektów dla A → B i B → A,
@@ -21,7 +21,7 @@ Konfiguracja odbywa się przez lokalny panel WWW dostępny przez Wi-Fi.
 * logi i diagnostyka przez WWW,
 * automatyczny **Deep Sleep** po 5 minutach bez ładowarki.
 
-## Sprzęt
+### Sprzęt
 
 * ESP32-C3 Super Mini
 * DFPlayer Mini
@@ -32,7 +32,7 @@ Konfiguracja odbywa się przez lokalny panel WWW dostępny przez Wi-Fi.
 * ładowanie bezprzewodowe
 * tranzystor do wykrywania napięcia ładowarki
 
-## Połączenia
+### Połączenia
 
 | Funkcja                |   GPIO |
 | ---------------------- | -----: |
@@ -45,7 +45,7 @@ Między GPIO21 a RX DFPlayera zalecany jest rezystor około **1 kΩ**.
 
 Wszystkie moduły muszą mieć wspólną masę.
 
-### GPIO0
+###### GPIO0
 
 ```text
 LOW  = balon na ładowarce
@@ -54,7 +54,7 @@ HIGH = balon poza ładowarką
 
 Na GPIO ESP32 nie wolno podawać bezpośrednio **5 V**.
 
-## Działanie
+### Działanie
 
 1. Balon stoi na ładowarce — `GPIO0 = LOW`.
 2. Oderwanie od ładowarki powoduje zmianę `LOW → HIGH`.
@@ -65,7 +65,7 @@ Na GPIO ESP32 nie wolno podawać bezpośrednio **5 V**.
 
 Jeżeli balon wyląduje przed zakończeniem programu, trasa nie zostaje zaliczona i kierunek pozostaje bez zmian.
 
-## Efekt płomienia
+### Efekt płomienia
 
 Sterownik wykorzystuje jedną diodę ARGB.
 
@@ -81,7 +81,7 @@ Sterownik wykorzystuje jedną diodę ARGB.
 * więcej żółtego i białego,
 * jednocześnie odtwarzany jest dźwięk.
 
-## DFPlayer
+### DFPlayer
 
 Plik na karcie microSD:
 
@@ -91,7 +91,7 @@ Plik na karcie microSD:
 
 Podczas mocnego efektu utwór jest odtwarzany i zapętlany.
 
-## Wi-Fi
+### Wi-Fi
 
 ESP32 tworzy własną sieć:
 
@@ -116,7 +116,7 @@ W panelu można:
 * sprawdzać stan sterownika,
 * przeglądać logi.
 
-## Ustawianie efektów
+### Ustawianie efektów
 
 Każdy efekt posiada:
 
@@ -136,7 +136,7 @@ KONIEC:        0:23
 
 Pole `KONIEC` jest obliczane automatycznie.
 
-## Deep Sleep
+### Deep Sleep
 
 Jeżeli przez **5 minut** nie zostanie wykryta ładowarka (`GPIO0 = HIGH`), ESP32 przechodzi w Deep Sleep.
 
@@ -154,7 +154,7 @@ GPIO0 = LOW
 
 czyli po ponownym pojawieniu się balonu na ładowarce.
 
-## Struktura projektu
+### Struktura projektu
 
 ```text
 BALON_FINAL_AUTO_fire/
@@ -166,7 +166,7 @@ BALON_FINAL_AUTO_fire/
 
 `web_ui.h` — panel [WWW](http://WWW).
 
-## Uruchomienie
+### Uruchomienie
 
 1. Wgraj `001.mp3` na kartę microSD.
 2. Podłącz ESP32, DFPlayer, ARGB i czujnik ładowarki.
@@ -183,7 +183,7 @@ Po konfiguracji sterownik może pracować całkowicie autonomicznie.
 
 Osobny sterownik odpowiada za **ręczne uruchomienie przejazdu balonu oraz bazowanie mechanizmu**.
 
-## Połączenia
+### Połączenia
 
 | Funkcja            |      Pin |
 | ------------------ | -------: |
@@ -203,7 +203,7 @@ LOW  przez 500 ms
 HIGH — stan spoczynkowy
 ```
 
-## Uruchomienie balonu
+### Uruchomienie balonu
 
 W stanie gotowości:
 
@@ -232,7 +232,7 @@ Po każdym uruchomieniu kierunek jest automatycznie przełączany:
 Lot 1 → Lot 2 → Lot 1 → Lot 2...
 ```
 
-## Bazowanie
+### Bazowanie
 
 Po naciśnięciu przycisku bazowania:
 
@@ -243,7 +243,7 @@ Po naciśnięciu przycisku bazowania:
 
 Migająca czerwona dioda informuje, że trwa procedura bazowania.
 
-## Sygnalizacja
+### Sygnalizacja
 
 ```text
 Zielona LED          → sterownik gotowy
