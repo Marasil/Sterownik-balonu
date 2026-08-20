@@ -87,6 +87,7 @@ Kierunek kierunekLotu = A_DO_B;
 
 bool efektAktywny = false;
 bool dfPlayerOK    = false;
+bool ledZgaszony   = false; // false na starcie, aby setup() wymusil wyslanie BLACK
 
 uint32_t startLotuMs        = 0;
 uint32_t ostatniPlomienMs   = 0;
@@ -291,10 +292,11 @@ void wczytajKonfiguracje() {
 // DWA TRYBY PLOMIENIA:
 //
 // 1. SPOKOJNY PLOMIEN
-//    - gdy glowny efekt jest wylaczony
+//    - tylko podczas lotu, gdy glowny efekt jest wylaczony
 //    - czerwono-pomaranczowy
 //    - delikatny
 //    - bez dzwieku
+//    - na ladowarce LED jest calkowicie zgaszony
 //
 // 2. MOCNY PLOMIEN
 //    - gdy glowny efekt jest aktywny
@@ -315,6 +317,7 @@ void pokazSpokojnyPlomien() {
 
   led[0] = CHSV(hue, saturation, brightness);
   FastLED.show();
+  ledZgaszony = false;
 }
 
 void pokazMocnyPlomien() {
@@ -329,14 +332,33 @@ void pokazMocnyPlomien() {
 
   led[0] = CHSV(hue, saturation, brightness);
   FastLED.show();
+  ledZgaszony = false;
 }
 
 void zgasLED() {
+  // Nie wysylamy bez potrzeby tej samej komendy do LED w kazdej petli.
+  if (ledZgaszony) {
+    return;
+  }
+
   led[0] = CRGB::Black;
   FastLED.show();
+  ledZgaszony = true;
 }
 
 void aktualizujPlomien(uint32_t teraz) {
+  // LED ma swiecic TYLKO podczas lotu:
+  // - LOT
+  // - CZEKA_NA_LADOWANIE (program efektow skonczony, ale balon nadal leci)
+  // Na ladowarce i poza aktywnym lotem LED jest calkowicie zgaszony.
+  const bool balonWLocie =
+    (stan == LOT || stan == CZEKA_NA_LADOWANIE);
+
+  if (!balonWLocie) {
+    zgasLED();
+    return;
+  }
+
   if (teraz - ostatniPlomienMs < PLOMIEN_CO_MS) {
     return;
   }
@@ -377,14 +399,14 @@ void zatrzymajEfekt() {
       dfPlayer.stop();
     }
 
-    Log.println("EFEKT: STOP - spokojny plomien");
+    Log.println("EFEKT: STOP");
   }
 
   efektAktywny = false;
   ostatniPlomienMs = 0;
 
-  // Poza glownym efektem LED nadal pokazuje spokojny plomien.
-  pokazSpokojnyPlomien();
+  // Ta funkcja nie decyduje juz o swieceniu LED.
+  // Stan LED ustala aktualizujPlomien() na podstawie stanu lotu.
 }
 
 bool efektPowinienDzialac(const Trasa& t, uint32_t sekundaLotu) {
@@ -414,6 +436,10 @@ void rozpocznijLot(uint32_t teraz) {
   startLotuMs  = teraz;
   stan         = LOT;
 
+  // Od chwili startu LED zaczyna pokazywac spokojny plomien.
+  ostatniPlomienMs = teraz;
+  pokazSpokojnyPlomien();
+
   Log.println();
   Log.println("==============================");
   Log.println("BALON PODNIESIONY");
@@ -426,6 +452,7 @@ void rozpocznijLot(uint32_t teraz) {
 void przerwijLot() {
   zatrzymajEfekt();
   stan = GOTOWY;
+  zgasLED();
 
   Log.println();
   Log.println("==============================");
@@ -448,6 +475,7 @@ void zakonczTrase() {
   pamiec.putUChar("kierunek", cfg.nastepnyKierunek);
 
   stan = GOTOWY;
+  zgasLED();
 
   Log.println();
   Log.println("==============================");
@@ -481,6 +509,7 @@ void obsluzLadowanie(uint32_t teraz) {
   if (stan == CZEKA_NA_LADOWARKE) {
     zatrzymajEfekt();
     stan = GOTOWY;
+    zgasLED();
 
     Log.println();
     Log.println("LADOWARKA WYKRYTA");
@@ -514,9 +543,6 @@ void aktualizujLot(uint32_t teraz) {
     zatrzymajEfekt();
   }
 
-  if (efektAktywny) {
-    aktualizujPlomien(teraz);
-  }
 }
 
 // ============================================================
@@ -882,7 +908,9 @@ void loop() {
   aktualizujLot(teraz);
   aktualizujUspienie(teraz);
 
-  // Spokojny plomien poza efektem, mocny podczas efektu.
+  // LED swieci tylko podczas lotu:
+  // spokojny plomien poza efektem, mocny podczas efektu.
+  // Na ladowarce LED pozostaje zgaszony.
   aktualizujPlomien(teraz);
 
   serwer.handleClient();
