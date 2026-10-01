@@ -179,75 +179,64 @@ Po konfiguracji sterownik może pracować całkowicie autonomicznie.
 
 
 
+
 # Sterownik wyzwalający start balonu
 
-Osobny sterownik odpowiada za **ręczne uruchomienie przejazdu balonu oraz bazowanie mechanizmu**.
+Sterownik obsługuje ręczne uruchamianie przejazdu balonu między punktami **A i B** oraz bazowanie mechanizmu.
 
-### Połączenia
+## Połączenia
 
-| Funkcja            |      Pin |
-| ------------------ | -------: |
-| Przycisk START     |       D2 |
-| Przycisk bazowania | A3 / D17 |
-| LED czerwona       |       D3 |
-| LED zielona        |       D4 |
-| Sygnał BAZOWANIE   |      D10 |
-| Sygnał START       |      D13 |
+| Funkcja | Pin |
+|---|---|
+| Przycisk A | A3 / D17 |
+| Przycisk B | D2 |
+| Przycisk bazowania | A2 / D16 |
+| LED czerwona A | D12 |
+| LED zielona A | D11 |
+| LED czerwona B | D3 |
+| LED zielona B | D4 |
+| BAZOWANIE | D10 |
+| START | D13 |
 
-Wyjścia `START` i `BAZOWANIE` są aktywowane stanem **LOW**.
+Wyjścia `START` i `BAZOWANIE` są aktywne stanem `LOW` przez 500 ms.
 
-Sterownik generuje impuls:
+## Działanie
+
+Po uruchomieniu aktywny jest **punkt A**:
 
 ```text
-LOW  przez 500 ms
-HIGH — stan spoczynkowy
+A → zielony
+B → czerwony
 ```
 
-### Uruchomienie balonu
+Naciśnięcie aktywnego przycisku uruchamia przejazd. Podczas jazdy jego zielona LED gaśnie, a czerwona świeci.
 
-W stanie gotowości:
+Po zakończeniu przejazdu aktywny zostaje drugi punkt:
 
-* zielona dioda świeci,
-* czerwona dioda jest wyłączona.
+```text
+A → B → A → B...
+```
 
-Po naciśnięciu przycisku **START**:
-
-1. zielona dioda gaśnie,
-2. czerwona dioda zapala się,
-3. sterownik wysyła impuls na wyjście `START`,
-4. rozpoczyna odmierzanie czasu lotu,
-5. po zakończeniu czasu czerwona dioda gaśnie,
-6. ponownie zapala się zielona dioda.
-
-Sterownik posiada osobne czasy dla obu kierunków:
+Czasy dla obu kierunków są ustawiane osobno:
 
 ```cpp
-CZAS_LOTU_1
-CZAS_LOTU_2
+int CZAS_LOTU_1 = 1000;
+int CZAS_LOTU_2 = 1000;
 ```
 
-Po każdym uruchomieniu kierunek jest automatycznie przełączany:
-
-```text
-Lot 1 → Lot 2 → Lot 1 → Lot 2...
-```
-
-### Bazowanie
+## Bazowanie
 
 Po naciśnięciu przycisku bazowania:
 
-1. zielona dioda gaśnie,
-2. wysyłany jest impuls na wyjście `BAZOWANIE`,
-3. czerwona dioda miga przez około 10 sekund,
-4. po zakończeniu ponownie zapala się zielona dioda.
+1. wysyłany jest impuls `BAZOWANIE`,
+2. zielone LED gasną,
+3. czerwone LED A i B migają przez około 10 s,
+4. po zakończeniu zawsze aktywny zostaje **punkt A**.
 
-Migająca czerwona dioda informuje, że trwa procedura bazowania.
-
-### Sygnalizacja
+## Sygnalizacja
 
 ```text
-Zielona LED          → sterownik gotowy
-Czerwona LED         → trwa lot
-Migająca czerwona    → trwa bazowanie
+Zielona LED  → punkt aktywny
+Czerwona LED → punkt nieaktywny / trwa przejazd
+Migające czerwone A+B → bazowanie
 ```
-
